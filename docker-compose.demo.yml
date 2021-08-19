@@ -1,0 +1,41 @@
+version: '3'
+services:
+  app:
+    image: xms_go:latest
+    restart: always
+    environment:
+      DB_HOST: db
+      DB_NAME: "QNJRtXsu96Th"
+      DB_PORT: 3306
+      DB_USER: "4G8zs3ndDVUJ"
+      DB_PASSWORD: "fCTTgZ9WJc5N"
+      ADMIN_USERNAME: "3100109876"
+      ADMIN_PASSWORD: "sJ5t9AT7UERu"
+      SALT_A: "7wfqDA3bag4e"
+      SALT_B: "QME6hxm362ym"
+      JWT_ISSUER: "xms.zjueva.net"
+      JWT_KEY: "tXhbc^@M2NtI!P7S7LO7RxW^ucJ"
+      AES_KEY: "12RTmCGWwr3LVYbxqUs1!"
+      AES_IV: "8a7oawe32CSIGEIuivbvQcvR0"
+      WECHAT_APPID: "wx89c03381bc18e812"
+      WECHAT_APPSEC: "d5b7616fe25be78cf7fa0b58753380cb"
+      #ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - 0.0.0.0:6668:80
+
+  db:
+    image: mysql:8.0.19
+    restart: always
+    ports:
+      - 127.0.0.1:10003:3306
+    volumes:
+      - ./data/db_backup:/var/backups
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "AFg7L7tzHf92"
+      MYSQL_DATABASE: "QNJRtXsu96Th"
+      MYSQL_USER: "4G8zs3ndDVUJ"
+      MYSQL_PASSWORD: "fCTTgZ9WJc5N"
+networks:
+  default:
+    driver: bridge
