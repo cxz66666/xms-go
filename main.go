@@ -1,6 +1,7 @@
 package main
 
 import (
+	"xms/models"
 	"xms/pkg/logging"
 	"xms/pkg/setting"
 )
@@ -16,5 +17,6 @@ func main() {
 	// so we rename `init` to `Setup` and call them in our needed orders
 	setting.Setup()
 
+	models.Setup()
 	logging.Setup()
 }

@@ -46,16 +46,16 @@ const (
 )
 // BillTransactionRecord is the table billtranscationrecords
 type BillTransactionRecord struct {
-	ID int `gorm:"primaryKey" json:"id" form:"id"`
+	ID int `gorm:"primaryKey;column:Id" json:"id" form:"id"`
 
 	//操作人员ID
-	OperatorId int
+	OperatorId int `gorm:"column:OperatorId"`
 
 	//修改的时间
-	UpdateTime time.Time
+	UpdateTime time.Time `gorm:"column:UpdateTime"`
 
-	// foreign key to Bill
-	BillID int
+	//Bill的外键
+	BillID int `gorm:"column:BillId"`
 }
 
 func (BillTransactionRecord) TableName() string {
@@ -65,25 +65,25 @@ func (BillTransactionRecord) TableName() string {
 
 // Bill is the table bills
 type Bill struct {
-	ID int `gorm:"primaryKey" json:"id" form:"id"`
+	ID int `gorm:"primaryKey;column:Id" json:"id" form:"id"`
 
 	//标题
-	Title string `form:"title" json:"title" binding:"required,max=100,min=0"`
+	Title string `gorm:"column:Title;size:100" form:"title" json:"title" binding:"required,max=100,min=0"`
 
 	//内容
-	Content string `form:"content" json:"content" binding:"required,max=1000"`
+	Content string `gorm:"column:Content;size:1000"  form:"content;" json:"content" binding:"required,max=1000"`
 
 	//收入/支出
-	Type BillType `form:"type" json:"type" binding:"required,oneof=Income Outgoing"`
+	Type BillType `gorm:"column:Type" form:"type" json:"type" binding:"required,oneof=Income Outgoing"`
 
 	//单价
-	UnitPrice int `form:"unit_price" json:"unit_price" binding:"required,min=0"`
+	UnitPrice int `gorm:"column:UnitPrice" form:"unit_price" json:"unit_price" binding:"required,min=0"`
 
 	//数量
-	Quantity int `form:"quantity" json:"quantity" binding:"required,min=0"`
+	Quantity int `gorm:"column:Quantity" form:"quantity" json:"quantity" binding:"required,min=0"`
 
 	//参与交易人员
-	Trader string `form:"trader" json:"trader" binding:"required,max=50"`
+	Trader string `gorm:"column:Trader;size:50" form:"trader" json:"trader" binding:"required,max=50"`
 
 	Transactions []BillTransactionRecord `gorm:"foreignKey:BillID"`
 }
