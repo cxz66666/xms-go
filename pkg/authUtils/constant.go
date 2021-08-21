@@ -6,6 +6,12 @@ import (
 	"xms/models"
 	"xms/pkg/setting"
 )
+
+
+// XMS_AUTH_BEARER is the cookie name to store token
+const XMS_AUTH_BEARER="XMS_AUTH_BEARER"
+
+
 // EvaClaimTypes is used for jwt token, used by oreo and other
 type EvaClaimTypes struct {
 	Name string `json:"name"`

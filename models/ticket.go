@@ -179,6 +179,31 @@ func (Note) TableName() string {
 	return "notes"
 }
 
+// GetNoteById return the note with specially id
+func GetNoteById(id int) (*Note,error)  {
+	note:=Note{}
+	if err:=db.First(&note,id).Error;err!=nil{
+		return &note,err
+	}
+	return &note,nil
+}
+
+// GetNotesDesc will return at most num notes by descending order of Note.CreatedTime, also there type is not be comment
+func GetNotesDesc(num int) ([]Note,error)  {
+	var notes []Note
+	if err:=db.Where("Type <> ?",Comment).Order("CreatedTime desc").Limit(num).Find(&notes).Error;err!=nil{
+		return nil,err
+	}
+	return notes,nil
+}
+
+
+
+
+
+
+
+
 
 // TicketWorker 新开一个表去存这个ticket的Worker
 type TicketWorker struct {

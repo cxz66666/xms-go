@@ -37,6 +37,7 @@ type Server struct {
 	ReadTimeout time.Duration
 	WriteTimeout time.Duration
 	JwtExpireTime time.Duration
+	CacheExpireTime time.Duration
 }
 var ServerSetting = &Server{}
 
@@ -99,6 +100,7 @@ func Setup()  {
 	ServerSetting.ReadTimeout=ServerSetting.ReadTimeout*time.Second
 	ServerSetting.WriteTimeout=ServerSetting.WriteTimeout*time.Second
 	ServerSetting.JwtExpireTime=ServerSetting.JwtExpireTime*time.Minute
+	ServerSetting.CacheExpireTime=ServerSetting.CacheExpireTime*time.Hour
 	// change the port to 80 if release, you can comment it if you don't want to use docker.
 	if ServerSetting.RunMode==ReleaseMode {
 		ServerSetting.HttpPort = 80

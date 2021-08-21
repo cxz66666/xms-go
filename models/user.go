@@ -149,3 +149,19 @@ func (user *User)GetAvatarURL() string {
 	return  strconv.Itoa(result)
 }
 
+// GetUserById return the note with specially id
+func GetUserById(id int) (*User,error)  {
+	user:=User{}
+	if err:=db.First(&user,id).Error;err!=nil{
+		return &user,err
+	}
+	return &user,nil
+}
+// StuId2Id convert StudentId to ID
+func StuId2Id(stuid int) int  {
+	user:=User{}
+	if err:=db.First(&user,"StudentId = ?",stuid).Error;err!=nil{
+		return -1
+	}
+	return user.ID
+}

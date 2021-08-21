@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"xms/models"
 	"xms/pkg/logging"
 	"xms/pkg/setting"
+	"xms/routers"
 )
 
 // @title xms
@@ -19,4 +22,17 @@ func main() {
 
 	models.Setup()
 	logging.Setup()
+
+	router:=routers.InitRouter()
+
+	fmt.Println("running on ",setting.ServerSetting.HttpPort)
+
+	s:=&http.Server{
+		Addr:  fmt.Sprintf(":%d",setting.ServerSetting.HttpPort),
+		Handler: router,
+		ReadTimeout: setting.ServerSetting.ReadTimeout,
+		WriteTimeout: setting.ServerSetting.WriteTimeout,
+		MaxHeaderBytes: 1<<20,
+	}
+	s.ListenAndServe()
 }
