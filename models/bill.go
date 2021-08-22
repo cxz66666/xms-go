@@ -91,3 +91,52 @@ type Bill struct {
 func (Bill) TableName() string {
 	return "bills"
 }
+
+// AddNewBill will add the bill to database, and return id if success
+func AddNewBill(bill Bill) (int,error)  {
+	if err:=db.Create(&bill).Error;err!=nil{
+		return 0,err
+	}
+	return bill.ID,nil
+}
+
+// GetBillById find the id in the database with Transactions, and return error if not exists
+func GetBillById(id int) (*Bill,error) {
+	var bill Bill
+	if err:=db.Preload("Transactions").First(&bill,id).Error;err!=nil{
+		return nil,err
+	}
+	return &bill,nil
+
+}
+
+//DeleteBillById delete the bill model in database
+func DeleteBillById(id int) error {
+	if err:=db.Select("Transactions").Delete(&Bill{ID: id}).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+
+//UpdateBill will update all the column of bill
+func UpdateBill(bill Bill) error  {
+	if err:=db.Select("*").Updates(&bill).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+
+//GetBillsPaginated get the bills according to the type id size, but important Id range from 1 to inf, not 0, so don't forget to minus 1
+func GetBillsPaginated(billType int,pageId int, pageSize int) ([]Bill,int) {
+	var bills []Bill
+	pageId	-=1
+	switch billType {
+	case -1:
+		db.Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+	case 0:
+		db.Where("Type = ?",Income).Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+	case 1:
+		db.Where("Type = ?",Outgoing).Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+	}
+	return bills,len(bills)
+}

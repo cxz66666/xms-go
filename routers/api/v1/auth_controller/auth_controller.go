@@ -1,6 +1,7 @@
 package auth_controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -18,7 +19,8 @@ func Login(c *gin.Context)  {
 	g:=response.Gin{C: c}
 	var loginReq LoginReq
 	if err:=c.ShouldBind(&loginReq);err!=nil{
-		g.Error(http.StatusOK,response.ERROR_AUTH_PARAM_FAIL,err)
+		g.Error(http.StatusOK,response.ERROR_AUTH_PARAM_FAIL,nil)
+		return
 	}
 
 	loginStatus:="fail"
@@ -48,6 +50,7 @@ func Login(c *gin.Context)  {
 	}
 
 	secret:=utils.Password2Secret(loginReq.Password,setting.SecretSetting.SaltA,setting.SecretSetting.SaltB)
+	fmt.Println(secret)
 	stuId,err:=strconv.Atoi(loginReq.Username)
 	if err!=nil{
 		g.Error(http.StatusOK,response.ERROR_LOGIN_USERNAME,err)
@@ -90,6 +93,7 @@ func Login(c *gin.Context)  {
 
 }
 
+// SetToken just simple put the token( in header) to cookie
 func SetToken(c *gin.Context)  {
 	g:=response.Gin{C: c}
 

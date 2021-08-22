@@ -13,7 +13,7 @@ func GetStaffToken(user models.User) (string,error) {
 	model:=GetEvaClaimFromUser(user)
 	tokenClaims:=jwt.NewWithClaims(jwt.SigningMethodHS256,model)
 
-	token,err:=tokenClaims.SignedString(setting.SecretSetting.JwtKey)
+	token,err:=tokenClaims.SignedString([]byte(setting.SecretSetting.JwtKey))
 	return token,err
 }
 

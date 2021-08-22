@@ -2,8 +2,11 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"xms/middleware"
 	"xms/pkg/setting"
 	"xms/routers/api/v1/activity_controller"
+	"xms/routers/api/v1/auth_controller"
+	"xms/routers/api/v1/bill_controller"
 )
 func InitRouter() *gin.Engine {
 	r:=gin.New()
@@ -13,31 +16,34 @@ func InitRouter() *gin.Engine {
 	gin.SetMode(setting.ServerSetting.RunMode)
 
 	apiv1:=r.Group("/api")
+	apiv1.Use(middleware.RewriteToken())
 	{
 		activity:=apiv1.Group("/activities")
+		activity.Use(middleware.Jwt(),middleware.StaffOnly())
 		{
 			activity.GET("/current",activity_controller.GetLatestActivities)
 		}
 
-		//authController:=apiv1.Group("/auth")
-		//{
-		//	authController.POST("/login",_)
-		//	authController.GET("/setToken",_)
-		//	authController.GET("/logout",_)
-		//	authController.GET("/ping",_)
-		//}
-		//
-		//billController:=apiv1.Group("/bill")
-		//{
-		//	billController.POST("/create",_)
-		//	billController.GET("/:id",_)
-		//	billController.DELETE("/:id",_)
-		//	billController.PUT("/:id",_)
-		//	billController.GET("/list",_)
-		//	billController.GET("/stats/amount",_)
-		//	billController.GET("/stats/count",_)
-		//}
-		//
+		authController:=apiv1.Group("/auth")
+		{
+			authController.POST("/login",middleware.IPBlock(),auth_controller.Login)
+			authController.GET("/setToken",middleware.Jwt(),middleware.StaffOnly(),auth_controller.SetToken)
+			authController.GET("/logout",middleware.Jwt(),middleware.StaffOnly(),auth_controller.Logout)
+			authController.GET("/ping",auth_controller.Ping)
+		}
+
+		billController:=apiv1.Group("/bill")
+		billController.Use(middleware.Jwt(),middleware.StaffOnly())
+		{
+			billController.POST("/create",bill_controller.CreateNewBill)
+			billController.GET("/:id",bill_controller.GetBill)
+			billController.DELETE("/:id",middleware.SeniorMemberOnly(),bill_controller.DeleteBill)
+			billController.PUT("/:id",middleware.SeniorMemberOnly(),bill_controller.UpdateBill)
+			billController.GET("/list",bill_controller.GetBillList)
+			billController.GET("/stats/amount",bill_controller.GetStatsAmount)
+			billController.GET("/stats/count",bill_controller.GetStatsCount)
+		}
+
 		//newController:=apiv1.Group("/news")
 		//{
 		//	newController.GET("/current",_)

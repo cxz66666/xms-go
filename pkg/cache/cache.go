@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"fmt"
 	"github.com/muesli/cache2go"
 	"time"
 	"xms/pkg/logging"
@@ -19,7 +18,6 @@ func init() {
 // GetOrCreate accept a key and a function to return data (interface), if there isn't key-value in cache, it will call the
 // function to get data and store it
 func GetOrCreate(key string, f func()interface{}) interface{} {
-	fmt.Println(key)
 	res,err:=cache.Value(key)
 	if err!=nil{
 		newValue:=f()

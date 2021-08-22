@@ -10,23 +10,29 @@ var rate *RateLimit
 
 
 func init()  {
-	rate =new(RateLimit)
+	rate =NewRateLimit()
 }
 
 //Success set the ips struct to refresh
 func Success(ip string)  {
+	rate.Lock()
+	defer rate.Unlock()
 	result:=rate.GetorAdd(ip,NewLockInfo())
 	result.Success()
 }
 
 //Fail add one try count to this ips struct
 func Fail(ip string)  {
+	rate.Lock()
+	defer rate.Unlock()
 	result:=rate.GetorAdd(ip,NewLockInfo())
 	result.Fail()
 }
 
 //IsLoginable check the ips status and return it can log in  or not
 func IsLoginable(ip string) bool {
+	rate.Lock()
+	defer rate.Unlock()
 	result:=rate.GetorAdd(ip,NewLockInfo())
 	return result.IsLoginable()
 }
@@ -44,10 +50,15 @@ type RateLimit struct {
 	RateMap map[string]limits
 	sync.Mutex
 }
+
+func NewRateLimit() *RateLimit {
+	return &RateLimit{
+		RateMap: make(map[string]limits),
+	}
+}
 //GetorAdd is a useful function in c#, if it doesn't have one, then add one
 func (rate *RateLimit)GetorAdd(ip string,limit limits) limits {
-	rate.Lock()
-	defer rate.Unlock()
+
 	if l,ok:=rate.RateMap[ip];ok {
 		return l
 	} else {
