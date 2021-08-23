@@ -165,3 +165,11 @@ func StuId2Id(stuid int) int  {
 	}
 	return user.ID
 }
+
+// UpdateUser is used to update all the fields for user
+func UpdateUser(user *User) error  {
+	if err:=db.Select("*").Updates(user).Error;err!=nil{
+		return err
+	}
+	return nil
+}

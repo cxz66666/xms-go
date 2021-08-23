@@ -42,6 +42,12 @@ func Remove(key string)  {
 	cache.Delete(key)
 }
 
+// RemoveRange remove a slice of keys
+func RemoveRange(keys []string)  {
+	for _,item:=range keys{
+		cache.Delete(item)
+	}
+}
 
 
 // ForceFlush wipe the entire cache table

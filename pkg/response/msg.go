@@ -19,6 +19,18 @@ var MsgFlags =map[int]string{
 	ERROR_PARAM_NOT_VAILD:"param参数不合法",
 	ERROR_BILL_NOT_FOUND:"账单未找到",
 	ERROR_BILL_INVALID_QUERY:"query参数错误",
+	ERROR_NEWS_NOT_FOUND:"news没有找到",
+	ERROR_NEWS_INVALID_INFO:"news模型绑定错误，参数不合法",
+	ERROR_NEWS_INVALID_QUERY:"query参数错误，请检查参数是否合法",
+	ERROR_TICKET_SEARCH_INVALID_QUERY:"query参数错误，请检查参数是否合法",
+	ERROR_TICKET_LIST_INVALID_QUERY:"query参数错误，请检查参数是否合法",
+	ERROR_TICKET_NOT_FOUND:"ticket未找到，请检查id",
+	ERROR_TICKET_INVALID_INFO:"ticket模型绑定失败",
+	ERROR_TICKET_IS_CONFIRMED:"ticket已经锁定",
+	ERROR_TICKET_ALREADY_PICKED:"ticket已经认领过了",
+	ERROR_NOT_LOCKABLE:"ticket无法被锁定",
+	ERROR_TICKET_NOT_CONFIRMED:"ticket未被锁定",
+	ERROR_USER_NOT_FOUND:"用户未找到",
 	ERROR_DEFAULT: "未知错误",
 
 }

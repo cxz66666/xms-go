@@ -129,14 +129,21 @@ func UpdateBill(bill Bill) error  {
 //GetBillsPaginated get the bills according to the type id size, but important Id range from 1 to inf, not 0, so don't forget to minus 1
 func GetBillsPaginated(billType int,pageId int, pageSize int) ([]Bill,int) {
 	var bills []Bill
+	var count int64
 	pageId	-=1
+	tx:=db
 	switch billType {
-	case -1:
-		db.Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
 	case 0:
-		db.Where("Type = ?",Income).Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+		tx.Where("Type = ?",Income)
 	case 1:
-		db.Where("Type = ?",Outgoing).Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+		tx.Where("Type = ?",Outgoing)
 	}
-	return bills,len(bills)
+	tx.Count(&count)
+	tx.Order("Id desc").Preload("Transactions").Offset(pageSize*pageId).Limit(pageSize).Find(&bills)
+	pageCount:=int(count)/pageSize
+
+	if int(count)%pageSize!=0	{
+		pageCount++
+	}
+	return bills,pageCount
 }

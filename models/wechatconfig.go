@@ -41,3 +41,18 @@ func NewWechatConfig() *WechatConfig {
 		CommentCount: 0,
 	}
 }
+
+// AddNewWechatConfig will add the Wechat-config to database, and return id if success
+func AddNewWechatConfig(wechat *WechatConfig) (int,error)  {
+	if err:=db.Create(wechat).Error;err!=nil{
+		return 0,err
+	}
+	return wechat.ID,nil
+}
+
+func DeleteWechatConfigById(id int) error  {
+	if err:=db.Delete(&WechatConfig{ID: id}).Error;err!=nil{
+		return err
+	}
+	return nil
+}

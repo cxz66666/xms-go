@@ -59,12 +59,19 @@ func GetBill(c *gin.Context)  {
 		g.Error(http.StatusOK,response.ERROR_PARAM_NOT_VAILD,nil)
 		return
 	}
-	bill,err:=models.GetBillById(id)
-	if err!=nil	{
-		 g.Error(http.StatusOK,response.ERROR_BILL_NOT_FOUND,err)
+	//create cache
+	bill:=cache.GetOrCreate(cache.GetKey(cache.Bill,id), func() interface{} {
+		bill,err:=models.GetBillById(id)
+		if err!=nil{
+			return models.Bill{}
+		}
+		return bill
+	}).(models.Bill)
+	if bill.ID<=0	{
+		 g.Error(http.StatusOK,response.ERROR_BILL_NOT_FOUND,nil)
 		return
 	}
-	vm:=NewBillViewModel(*bill)
+	vm:=NewBillViewModel(bill)
 	for _,item:=range bill.Transactions{
 		user:=cache.GetOrCreate(cache.GetKey(cache.UserInfo,item.OperatorId), func() interface{} {
 			user,_:= models.GetUserById(item.OperatorId)
@@ -98,6 +105,8 @@ func DeleteBill(c *gin.Context)  {
 	bill_service.UpdateBasicAmount(bill.Type==models.Income,-bill.UnitPrice*bill.Quantity)
 	bill_service.UpdateBasicCount(bill.Type==models.Income,false)
 	cache.Remove(cache.GetBillFirstPageKey())
+	cache.Remove(cache.GetKey(cache.Bill,id))
+
 
 	g.Success(http.StatusOK,nil)
 	return
@@ -143,6 +152,9 @@ func UpdateBill(c *gin.Context)  {
 
 	//delete cache first
 	cache.Remove(cache.GetBillFirstPageKey())
+	//remove this cache
+	cache.Remove(cache.GetKey(cache.Bill,id))
+
 	//update bill and ignore the error
 	_=models.UpdateBill(*bill)
 
@@ -206,15 +218,17 @@ func GetBillList(c *gin.Context)  {
 	}
 	var bills []models.Bill
 	//only first page can use cache
-	if pageId==1 &&pageSize==30&&billType==-1{
-		bills=cache.GetOrCreate(cache.GetBillFirstPageKey(), func() interface{} {
-			bills,_:=models.GetBillsPaginated(billType,pageId,pageSize)
-			return bills
-		}).([]models.Bill)
-	} else {
-		bills,_=models.GetBillsPaginated(billType,pageId,pageSize)
-	}
+	//if pageId==1 &&pageSize==30&&billType==-1{
+	//	bills=cache.GetOrCreate(cache.GetBillFirstPageKey(), func() interface{} {
+	//		bills,_:=models.GetBillsPaginated(billType,pageId,pageSize)
+	//		return bills
+	//	}).([]models.Bill)
+	//} else {
+	//	bills,_=models.GetBillsPaginated(billType,pageId,pageSize)
+	//}
 
+
+	bills,pageCount:=models.GetBillsPaginated(billType,pageId,pageSize)
 
 	billVms:=make([]BillViewModel,0,len(bills))
 
@@ -234,6 +248,7 @@ func GetBillList(c *gin.Context)  {
 		"pageId":pageId,
 		"pageSize":pageSize,
 		"data":billVms,
+		"pageCount":pageCount,
 	})
 
 	return

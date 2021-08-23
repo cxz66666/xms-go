@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm/clause"
+	"time"
+)
 
 // TicketType means the 类型
 type TicketType uint8
@@ -117,6 +120,10 @@ func (ts TicketStatus) ToDisplayName() string {
 	}
 }
 
+func CheckIfLockable(status TicketStatus) bool {
+	return status==FailedDone||status==SuccessDone||status==NonFixedDone||status==Deleted
+}
+
 
 type NoteType uint8
 const (
@@ -170,6 +177,12 @@ type Note struct {
 	TicketID int `gorm:"column:TicketId"`
 }
 
+//NewNote is used to create a note with time
+func NewNote() *Note {
+	return &Note{
+		CreatedTime: time.Now(),
+	}
+}
 //SetCreatedTime set Note.CreatedTime to time.Now
 func (note *Note) SetCreatedTime() {
 	note.CreatedTime=time.Now()
@@ -244,7 +257,7 @@ type Ticket struct {
 	Description string `gorm:"column:Description;size:30" json:"description" form:"description" binding:"required,max=30"`
 
 	//维修人员
-	Works []TicketWorker `gorm:"foreignKey:TicketID"`
+	Workers []TicketWorker `gorm:"foreignKey:TicketID"`
 
 	//备注
 	Notes []Note `gorm:"foreignKey:TicketID"`
@@ -259,10 +272,10 @@ type Ticket struct {
 	Status TicketStatus `gorm:"column:Status" json:"status" form:"status"`
 
 	//是否确认
-	IsConfirmed bool `gorm:"IsConfirmed" json:"is_confirmed" form:"is_confirmed"`
+	IsConfirmed bool `gorm:"column:IsConfirmed" json:"is_confirmed" form:"is_confirmed"`
 
 	//wx id
-	WeChatConfigId int `gorm:"WeChatConfigId" json:"we_chat_config_id"`
+	WeChatConfigId int `gorm:"column:	WeChatConfigId" json:"we_chat_config_id"`
 }
 
 func (Ticket) TableName() string {
@@ -277,3 +290,105 @@ func NewTicket() *Ticket {
 	}
 }
 
+
+// AddNewTicket will add the ticket to database, and return id if success
+// I use ptr here, because we need a lot of id in the ticket
+func AddNewTicket(ticket *Ticket) (int,error)  {
+	if err:=db.Create(ticket).Error;err!=nil{
+		return 0,err
+	}
+	return ticket.ID,nil
+}
+
+
+// GetTicketCount return the total tickets num
+func GetTicketCount() (int,error) {
+	var count int64
+	if err:=db.Model(&Ticket{}).Count(&count).Error;err!=nil{
+		return 0,err
+	}
+	return int(count),nil
+}
+
+// SearchTicket search the ticket which phone contain value or Owner contains value, then order by IsConfirmed and CretedTime
+func SearchTicket(value string,pageId int,pageSize int, queryType int) ([]Ticket,int) {
+	var tickets []Ticket
+	var count int64
+	pageId-=1
+	tx:=db.Where("Phone LIKE ?","%"+value+"%").Or("Owner LIKE ?","%"+value+"%").
+		Order("IsConfirmed , CreatedTime desc")
+	switch queryType {
+	case 1:
+		tx=tx.Where("Type = ?",Appliance)
+	case 2:
+		tx=tx.Where("Type = ?",Computer)
+	}
+	tx.Count(&count)
+
+	if err:=tx.Offset(pageId*pageSize).Limit(pageSize).Find(&tickets).Error;err!=nil{
+			return nil,0
+	}
+
+	pageCount:=int(count)/pageSize
+	if int(count)%pageSize!=0{
+		pageCount++
+	}
+
+
+	return tickets,pageCount
+}
+
+func GetTicketsList(pageId int,pageSize int,queryType int) ([]Ticket,int)  {
+	var tickets []Ticket
+	var count int64
+	pageId-=1
+	tx:=db.Model(&Ticket{}).Order("IsConfirmed,CreatedTime desc")
+	switch queryType {
+	case 1:
+		tx=tx.Where("Type = ?",Appliance)
+	case 2:
+		tx=tx.Where("Type = ?",Computer)
+	}
+	tx.Count(&count)
+
+	if err:=tx.Offset(pageId*pageSize).Limit(pageSize).Find(&tickets).Error;err!=nil{
+		return nil,0
+	}
+
+	pageCount:=int(count)/pageSize
+	if int(count)%pageSize!=0{
+		pageCount++
+	}
+	return tickets,pageCount
+}
+
+
+// GetTicketById find the id in the database with Transactions, and return error if not exists
+func GetTicketById(id int) (*Ticket,error) {
+	var ticket Ticket
+	if err:=db.Preload("Notes").Preload("Workers").Preload("Accessories").First(&ticket,id).Error;err!=nil{
+		return nil,err
+	}
+	return &ticket,nil
+}
+
+// UpdateTicket is used to update all the fields for ticket
+func UpdateTicket(ticket *Ticket) error  {
+	if err:=db.Select("*").Updates(ticket).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+
+func DeleteTicketById(id int) error  {
+	if err:=db.Select(clause.Associations).Delete(&Ticket{ID: id}).Error;err!=nil{
+		return err
+	}
+	return nil
+}
+
+// TicketsAndCount only used for cache to store the index page tickets
+type TicketsAndCount struct {
+	Tickets 	[]Ticket
+	PageCount 	int
+}

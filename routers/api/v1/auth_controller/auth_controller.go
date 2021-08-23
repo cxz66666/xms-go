@@ -1,7 +1,6 @@
 package auth_controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -50,7 +49,6 @@ func Login(c *gin.Context)  {
 	}
 
 	secret:=utils.Password2Secret(loginReq.Password,setting.SecretSetting.SaltA,setting.SecretSetting.SaltB)
-	fmt.Println(secret)
 	stuId,err:=strconv.Atoi(loginReq.Username)
 	if err!=nil{
 		g.Error(http.StatusOK,response.ERROR_LOGIN_USERNAME,err)
