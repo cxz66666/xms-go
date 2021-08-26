@@ -45,6 +45,8 @@ func Setup()  {
 	db.AutoMigrate(&DbConfig{},&News{},&Ticket{},&TicketWorker{},&User{},&WechatConfig{},&WechatUser{})
 	db.AutoMigrate(&Bill{})
 	db.AutoMigrate(&Accessory{},&Note{},&BillTransactionRecord{})
+	db=db.Debug()
+
 }
 
 
@@ -55,4 +57,5 @@ type Enum interface {
 	GetIndex() int
 	//ToDisplayName return the human read name
 	ToDisplayName()string
+
 }

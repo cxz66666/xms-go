@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"strings"
 	"time"
@@ -120,7 +121,8 @@ func DeleteBillById(id int) error {
 
 //UpdateBill will update all the column of bill
 func UpdateBill(bill Bill) error  {
-	if err:=db.Select("*").Updates(&bill).Error;err!=nil{
+	db.Model(&bill).Association("Transactions").Replace(bill.Transactions)
+	if err:=db.Omit(clause.Associations).Updates(&bill).Error;err!=nil{
 		return err
 	}
 	return nil

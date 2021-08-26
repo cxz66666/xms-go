@@ -304,33 +304,33 @@ func UpdateTicketInfo(c *gin.Context)  {
 	}
 	var sb strings.Builder
 	if len(info.Owner)>0&&info.Owner!=ticketToUpdate.Owner {
-		sb.WriteString(fmt.Sprintf("[Owner Changed] %s => %s\n",ticketToUpdate.Owner,info.Owner))
+		sb.WriteString(fmt.Sprintf("[Owner Changed] %s => %s \r\n",ticketToUpdate.Owner,info.Owner))
 		ticketToUpdate.Owner=info.Owner
 	}
 
 
 	if len(info.Device)>0&&info.Device!=ticketToUpdate.Device {
-		sb.WriteString(fmt.Sprintf("[Device Changed] %s => %s\n",ticketToUpdate.Device,info.Device))
+		sb.WriteString(fmt.Sprintf("[Device Changed] %s => %s \r\n",ticketToUpdate.Device,info.Device))
 		ticketToUpdate.Device=info.Device
 	}
 
 	if len(info.DeviceModel)>0&&info.DeviceModel!=ticketToUpdate.DeviceModel {
-		sb.WriteString(fmt.Sprintf("[DeviceModel Changed] %s => %s\n",ticketToUpdate.DeviceModel,info.DeviceModel))
+		sb.WriteString(fmt.Sprintf("[DeviceModel Changed] %s => %s \r\n",ticketToUpdate.DeviceModel,info.DeviceModel))
 		ticketToUpdate.DeviceModel=info.DeviceModel
 	}
 
 	if info.Type!=ticketToUpdate.Type {
-		sb.WriteString(fmt.Sprintf("[Type Changed] %d => %d\n",ticketToUpdate.Type,info.Type))
+		sb.WriteString(fmt.Sprintf("[Type Changed] %d => %d \r\n",ticketToUpdate.Type,info.Type))
 		ticketToUpdate.Type=info.Type
 	}
 
 	if len(info.Phone)>0&&info.Phone!=ticketToUpdate.Phone {
-		sb.WriteString(fmt.Sprintf("[Phone Changed] %s => %s\n",ticketToUpdate.Phone,info.Phone))
+		sb.WriteString(fmt.Sprintf("[Phone Changed] %s => %s \r\n",ticketToUpdate.Phone,info.Phone))
 		ticketToUpdate.Phone=info.Phone
 	}
 
 	if len(info.Description)>0&&info.Description!=ticketToUpdate.Description {
-		sb.WriteString(fmt.Sprintf("[Description Changed] %s => %s\n",ticketToUpdate.Description,info.Description))
+		sb.WriteString(fmt.Sprintf("[Description Changed] %s => %s \r\n",ticketToUpdate.Description,info.Description))
 		ticketToUpdate.Description=info.Description
 	}
 	isChangeAc:=false
@@ -352,7 +352,7 @@ func UpdateTicketInfo(c *gin.Context)  {
 		}
 	}
 	if isChangeAc {
-		sb.WriteString("[Accessories Changed]  something=> otherthing")
+		sb.WriteString("[Accessories Changed]  *****=> ***** \r\n")
 	}
 
 
@@ -647,7 +647,7 @@ func ChangeTicketStatus(c *gin.Context)  {
 
 	note:=models.Note{
 		Type: models.ChangeState,
-		Content: data.Status.ToDisplayName(),
+		Content: strconv.Itoa(data.Status.GetIndex()) ,
 		OperatorId: g.GetUserId(),
 		CreatedTime: time.Now(),
 	}
@@ -739,7 +739,7 @@ func PostNewComment(c *gin.Context)  {
 	}
 
 	var data NewCommentReq
-	if err:=c.ShouldBind(data);err!=nil{
+	if err:=c.ShouldBind(&data);err!=nil{
 		g.Error(http.StatusOK,response.ERROR_TICKET_INVALID_INFO,nil)
 		return
 	}

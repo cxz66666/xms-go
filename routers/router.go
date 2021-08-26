@@ -92,7 +92,7 @@ func InitRouter() *gin.Engine {
 		userController.Use(middleware.Jwt(),middleware.StaffOnly())
 		{
 			userController.GET("/info/me",user_controller.GetMyInfo)
-			userController.GET("/setavatar",user_controller.SetUserAvatar)
+			userController.GET("/setavatar/:id",user_controller.SetUserAvatar)
 			userController.GET("/info/:id",user_controller.GetUserInfoById)
 			userController.GET("details/:id",user_controller.GetUserDetailsById)
 			userController.GET("/list",user_controller.GetUserList)

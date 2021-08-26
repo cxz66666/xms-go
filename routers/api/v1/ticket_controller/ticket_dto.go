@@ -116,7 +116,7 @@ type TicketListRes struct {
 
 
 type ChangeStatusBodyReq struct {
-	Status models.TicketStatus `json:"status" form:"status" binding:"required"`
+	Status models.TicketStatus `json:"status" form:"status" binding:"min=0,max=8"`
 }
 
 type NewCommentReq struct {

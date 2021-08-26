@@ -374,7 +374,10 @@ func GetTicketById(id int) (*Ticket,error) {
 
 // UpdateTicket is used to update all the fields for ticket
 func UpdateTicket(ticket *Ticket) error  {
-	if err:=db.Select("*").Updates(ticket).Error;err!=nil{
+	db.Model(ticket).Association("Accessories").Replace(ticket.Accessories)
+	db.Model(ticket).Association("Workers").Replace(ticket.Workers)
+	db.Model(ticket).Association("Notes").Replace(ticket.Notes)
+	if err:=db.Omit(clause.Associations).Updates(ticket).Error;err!=nil{
 		return err
 	}
 	return nil

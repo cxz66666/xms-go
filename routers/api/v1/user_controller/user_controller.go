@@ -64,7 +64,7 @@ func SetUserAvatar(c *gin.Context)  {
 		return
 	}
 
-	user.AvatarURL = "https://1299271970796699.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/oss_upload/download/?stuId="+ user.GetAvatarURL();
+	user.AvatarURL = "https://1767171970454994.cn-hangzhou.fc.aliyuncs.com/2016-08-15/proxy/avatar/get_avatar/?stuId="+ user.GetAvatarURL();
 
 	_=models.UpdateUser(user)
 	cache.Remove(cache.GetKey(cache.UserInfo,id))

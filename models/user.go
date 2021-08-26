@@ -144,9 +144,10 @@ func NewAdminUser() *User {
 }
 
 func (user *User)GetAvatarURL() string {
-	result:=user.ID
-	result = ((result ^ 1242458739) + 1984) ^ 4281719956;
-	return  strconv.Itoa(result)
+	//result:=int64(user.ID)
+	//result = ((result ^ 1242458739) + 1984) ^ 4281719956;
+	//return  strconv.Itoa(int(result))
+	return strconv.Itoa(user.ID)
 }
 
 // GetUserById return the note with specially id
